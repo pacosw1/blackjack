@@ -1,0 +1,134 @@
+
+syntax = "proto3";
+
+
+
+
+//streaming service
+service GameServer {
+    rpc Connect(stream Action) returns (stream Event);
+}
+
+
+
+///////////    SERVER     ///////////
+
+message PlayerJoined {
+    string PlayerID = 1;
+    string Username = 2;
+    string Country = 3;
+}
+
+message PlayerLeft {
+    string PlayerID = 1;
+    string Username = 2;
+}
+
+message PlayerBet {
+    string PlayerID = 1;
+    int32 Amount = 2;
+}
+
+message PlayerWon {
+    string PlayerID = 1;
+    int32 Amount = 2;
+}
+
+message PlayerLost {
+    string PlayerID = 1;
+    int32 Amount = 2;
+}
+
+message PlayerGot {
+    string PlayerID = 1;
+    int32 Card = 2;
+}
+
+
+
+enum AnnouncementType {
+    HOUSE_WON = 0;
+    HOUSE_LOST = 1;
+    HOUSE_DEALING = 2;
+    HOUSE_PLAYS = 18;
+    HOUSE_BLACKJACK = 20;
+    PLAYER_BLACKJACK = 19;
+    PLAYER_TURNS_START = 17;
+    PLAYER_TURN_ENDED = 12;
+}
+
+message Announcement {
+    AnnouncementType Type = 1;
+    string PlayerID = 2;
+    string Message = 3;
+}
+
+message HouseGot {
+    int32 Amount = 1;
+}
+
+message TimeLeft {
+    string PLayerID = 1;
+    int64 Amount = 2;
+}
+
+//server broadcast to clients
+message Event {
+
+    oneof payload {
+        PlayerJoined PlayerJoined = 1;
+        PlayerLeft PlayerLeft = 2;
+        PlayerBet PlayerBet = 3;
+        PlayerWon PlayerWon = 4;
+        PlayerLost PlayerLost = 5;
+        PlayerGot PlayerGot = 6;
+        HouseGot HouseGot = 7;
+        TimeLeft TimeLeft = 8;
+        Announcement Announcement = 9;
+    }
+
+
+
+}
+
+
+
+
+
+
+//////////////  CLIENT /////////////
+
+message JoinGame {
+    string PlayerID = 1;
+    string RoomID = 2;
+}
+
+message LeaveGame {
+    string PlayerID = 1;
+}
+
+message Hit {
+    string PlayerID = 1;
+}
+
+message Bet {
+    string PlayerID = 1;
+    int32 Amount = 2;
+}
+
+message Stay {
+    string PlayerID = 1;
+}
+
+//client actions
+message Action {
+
+    oneof payload {
+        JoinGame JoinGame = 1;
+        LeaveGame LeaveGame = 2;
+        Hit Hit = 3;
+        Bet Bet = 4;
+        Stay Stay = 5;
+    }
+
+}

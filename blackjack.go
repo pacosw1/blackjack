@@ -8,42 +8,32 @@ import (
 func main() {
 
 	game := &Game{
-		Cards:          make([]int, 14),
-		Players:        make([]*Player, 5),
-		PendingPlayers: make([]*Player, 0),
-		Decks:          8,
-		TurnTimeout:    10,
-		State:          Idle,
-		playerCount:    0,
+		Cards: make([]int, 14),
+		Seats: make([]*Seat, 5),
+		PendingPlayers: &RoomQueue{
+			PendingPlayers: make([]string, 0),
+		},
+		Decks:       8,
+		TurnTimeout: 10,
+		State:       Idle,
+		playerCount: 0,
 
 		HouseVisible: false,
 		HouseScore:   0,
 		HouseCards:   make([]int, 0),
 	}
 
-	print(game.Players[0] == nil)
+	print(game.Seats[0] == nil)
 
 	game.GenerateNextCard()
 
 }
 
-//phase 0 Betting
-
-//phase1 Dealing
-
-//phase 2 Turns
-
-//phase 3 House tries to beat everyone
-
-//House hits until he has 17 or more
-
-//Process winnings or losses
-
 //State type for enum
 type State int
 
 const (
-	//Idle waiting for players to resume game
+	//Idle waiting for players to join room
 	Idle = iota
 	//Betting Players are placing their bets for upcoming round
 	Betting
@@ -62,15 +52,15 @@ const (
 //Game blackjack
 type Game struct {
 	Cards          []int
-	Players        []*Player
+	Seats          []*Seat
 	Decks          int
 	HouseVisible   bool
 	HouseScore     int
 	HouseCards     []int
-	PendingPlayers []*Player
+	PendingPlayers *RoomQueue
 	TurnTimeout    int
 	State          State
-	currentTurn    *Player
+	currentTurn    *Seat
 	playerCount    int
 }
 
@@ -79,17 +69,18 @@ func (g *Game) PlayerJoin(playerID string) {
 
 }
 
-//Player represents player in game
-type Player struct {
+//Seat represents player seated in game
+type Seat struct {
+	Active    bool
 	Position  int
-	ID        string
+	PlayerID  string
 	Cards     []int
 	Score     int
 	BetAmount float32
 }
 
 //UpdateScore updates the players total based on cards
-func (p *Player) UpdateScore() {
+func (p *Seat) UpdateScore() {
 
 	index := 0
 
@@ -144,10 +135,10 @@ func (g *Game) NextPlayer() {
 
 	playerIndex := g.currentTurn.Position + 1
 
-	if playerIndex == len(g.Players) {
+	if playerIndex == len(g.Seats) {
 		playerIndex = 0
 	}
-	g.currentTurn = g.Players[playerIndex]
+	g.currentTurn = g.Seats[playerIndex]
 
 }
 
@@ -195,9 +186,9 @@ func (g *Game) DealOne() {
 
 	index := 0
 
-	for index < len(g.Players) {
+	for index < len(g.Seats) {
 
-		player := g.Players[index]
+		player := g.Seats[index]
 
 		if player == nil {
 			continue
@@ -223,7 +214,7 @@ func (g *Game) Hit(playerID string) {
 	}
 
 	//if not your turn do nothing
-	if g.currentTurn.ID != playerID {
+	if g.currentTurn.PlayerID != playerID {
 		return
 	}
 
