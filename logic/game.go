@@ -1,4 +1,4 @@
-package main
+package logic
 
 import (
 	"math/rand"
@@ -16,7 +16,7 @@ func main() {
 		Decks:       8,
 		TurnTimeout: 10,
 		State:       Idle,
-		playerCount: 0,
+		PlayerCount: 0,
 
 		HouseVisible: false,
 		HouseScore:   0,
@@ -60,8 +60,8 @@ type Game struct {
 	PendingPlayers *RoomQueue
 	TurnTimeout    int
 	State          State
-	currentTurn    *Seat
-	playerCount    int
+	CurrentTurn    *Seat
+	PlayerCount    int
 }
 
 //PlayerJoin adds a player when he joins the game
@@ -88,6 +88,10 @@ func (p *Seat) UpdateScore() {
 		p.Score += p.Cards[index]
 		index++
 	}
+}
+
+func AwaitTurnInput() {
+
 }
 
 //RandomNumber gens random num
@@ -133,12 +137,12 @@ func (g *Game) GenerateNextCard() int {
 //NextPlayer pass turn to next player
 func (g *Game) NextPlayer() {
 
-	playerIndex := g.currentTurn.Position + 1
+	playerIndex := g.CurrentTurn.Position + 1
 
 	if playerIndex == len(g.Seats) {
 		playerIndex = 0
 	}
-	g.currentTurn = g.Seats[playerIndex]
+	g.CurrentTurn = g.Seats[playerIndex]
 
 }
 
@@ -214,17 +218,17 @@ func (g *Game) Hit(playerID string) {
 	}
 
 	//if not your turn do nothing
-	if g.currentTurn.PlayerID != playerID {
+	if g.CurrentTurn.PlayerID != playerID {
 		return
 	}
 
 	num := g.GenerateNextCard()
 
 	//add cards to player's deck
-	g.currentTurn.Cards = append(g.currentTurn.Cards, num)
+	g.CurrentTurn.Cards = append(g.CurrentTurn.Cards, num)
 
 	//update total
-	g.currentTurn.UpdateScore()
+	g.CurrentTurn.UpdateScore()
 
 }
 

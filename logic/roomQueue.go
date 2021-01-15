@@ -1,4 +1,4 @@
-package main
+package bj
 
 //RoomQueue takes care of getting people in the game when the round ends
 type RoomQueue struct {

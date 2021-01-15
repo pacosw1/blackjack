@@ -1,11 +1,12 @@
 
 syntax = "proto3";
+package proto;
 
 
 
 
 //streaming service
-service GameServer {
+service Game {
     rpc Connect(stream Action) returns (stream Event);
 }
 
@@ -86,8 +87,6 @@ message Event {
         TimeLeft TimeLeft = 8;
         Announcement Announcement = 9;
     }
-
-
 
 }
 
